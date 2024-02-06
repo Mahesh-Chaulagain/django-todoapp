@@ -1,0 +1,138 @@
+# Django:
+    - useful tool for building web applications with python
+    - follows Model-View-Template(MVT) architecture
+    where
+        Model refers to the internal representation of information stored
+        View is responsible for processing user requests and returning appropriate response
+        Template is responsible for rendering the data received from the View
+
+# set up the project:
+    - install virtualenv, a tool for establishing isolated python environment
+        >pip install virtualenv
+
+    - create a virtual environment called myenv
+        >python -m venv myenv
+
+    - activate the virtual environment, allowing for isolated python development within the designated environment
+        >myenv\Scripts\activate
+
+    - make sure django is installed
+        >pip install django
+
+    - start a project 
+        >django-admin startproject todoproject
+
+    - change into the project directory, then create a new applications
+        >cd todoproject
+        >python manage.py startapp todoapp
+
+    - include the app's name in the INSTALLED_APPS list in settings.py
+
+# Django Model:
+    - is like a detailed plan that says what info you want to store, how to store it, and how it can be retrieved
+    - open the models.py in the todoapp and add following code:
+        from django.db import models
+
+        class Task(models.Model):
+            title = models.CharField(max_length=100)
+            completed = models.BooleanField(default=False)
+
+    - where "Task" is the name of the model
+    - Field types you can use are:
+        1.CharField: short text-based values
+        2.BooleanField: either True or False
+        3.AutoField: an IntegerField that automatically increments
+        4.DateField: represents a date using a "datetime.date" instance
+        5.DateTimeField: represents date and time using a "datetime.datetime" instance
+        6.DecimalField: represents a fixed-precision decimal number using a "Decimal" instance
+        7.EmailField: a CharField validating the values as a valid email address
+        8.ImageField: inherits from FileField, ensuring uploaded objects are valid images
+        9.IntegerField: stores a integer value within a safe range
+        10.SlugField: represents a short label for something, typically used in URLs
+        11.TextField: a large text Field
+        12.TimeField: represents time using a "datetime.time" instance
+        13.URLField: a CharField for URLs
+
+    - other field types explain the relationship between the tables
+        1.ForeignKey: represents a many-to-one relationship
+        2.ManyToManyField: represents a many-to-many relationship
+        3.OneToOneField: signifies a one-to-one relationship
+
+# Run Migrations:
+    - to synchronize your database with the latest changes in your Django models, you musr run Migrations
+    - make sure you are on the same directory as the "manage.py" file is and then run the following
+        >python manage.py makemigrations
+        >python manage.py migrate
+
+# Register Model:
+    - register your models in the "admin.py" file.
+    - this enables admin to view, add, edit and delete instance of the "Task" model through django admin interface
+    - code in admin.py:
+        from django.contrib import admin
+        from .models import Task
+
+        admin.site.register(Task)
+
+# Create superuser:
+    - need to create a "superuser" in order to access the django admin interface
+    - create superuser with:
+        >python manage.py createsuperuser
+
+# Django shell:
+    - a powerful and versatile tool that enhances the development and testing experience of your django project
+    - also provides a dynamic and interactive environment for working with your code, data and models
+    - to access the shell run the followong command:
+        >python manage.py shell
+
+    - start by inporting "Task" model
+        >from todoapp.models import Task
+
+# Create
+    - to create a new task, type the following
+        >new_task = Task(title="Complete Assignment", completed=False)
+        >new_task.save()
+
+    - Alternatively, we can use the "create" function like
+        >Task.objects.create(title="Another task", completed=False)
+
+    - To check all the tasks, enter the following
+        >Task.objects.all()     # queryset is returned with the task we just created
+
+# Read
+    - to read the objects django provides the "get()" and "filter()" methods
+    
+    - the "get()" method retreives a single object from the database based on specified condition
+    - raises exception if no object or multiple objects are found, making it suitable for unique queries
+    - code:
+        >specific_task = Task.objects.get(title="Complete Assignment")
+        >print(f'Title:{specific_task.title}, Completed:{specific_task.completed}')
+
+    - the "filter()" method retrieves a queryset of database objects matching specified condition.
+    - doesn't raise exception if multiple or no objects are found and is ideal for queires with multiple possible results
+    - code:
+        >incomplete_tasks = Task.objects.filter(completed=False)
+        >for task in incomplete_tasks:
+            print(f'Title:{task.title}, Completed:{task.completed}')
+
+# Update
+    - if we want to make changes, then we can do so using the "update()" method.
+    - code:
+        >incomplete_tasks = Task.objects.filter(completed=False)
+        >incomplete_tasks.update(completed=True)
+        >all_tasks = Task.objects.all()
+        >for task in all_tasks:
+            print(f'Title:{task.title}, Completed:{task.completed}')
+
+        this first updates the status of the tasks to "completed" then prints the completed tasks
+
+# Delete
+    - delete all the task or a specific task using "delete()" method
+    - code:
+        >task_to_delete = Task.objects.get(title='Another task')
+        >task_to_delete.delete()
+        >all_tasks_after_deletion = Task.objects.all()
+        >for task in all_tasks_after_deletion:
+           print(f'Title:{task.title}, Completed:{task.completed}')
+        
+    - we can simplify the code above like this:
+        >task_to_delete = Task.objects.get(title='Another task').delete()
